@@ -13,6 +13,7 @@
 <body>
   <div class="text-center">
 
+
     <form  action="/signup" method="POST" style="max-width: 300px; margin:auto">
       <a href='/' class="navbar-brand">
         <span class="fw-bold text-warning">
@@ -21,6 +22,7 @@
       </a>
       <h1 class="h3 mb-3 mt-3
        font-weight-normal">Sign Up and Earn</h1>
+
 
        <!-- username label -->
       <label for="username" class="sr-only"></label>
@@ -52,6 +54,7 @@
           <button class="btn btn-lg btn-warning btn-block">Sign Up</button>
         </div>
 
+
         <div>
           <a class="nav-link text-info mt-3" href="/">Back</a>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
@@ -61,10 +64,12 @@
         
         
 
+
         {{#if errorMessage}}
           <p class="error">{{errorMessage}}</p>
         {{/if}}
         
     </form>
   </div>
+
 
