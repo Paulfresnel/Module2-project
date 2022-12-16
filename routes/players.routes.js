@@ -40,9 +40,10 @@ let tokenAcessGETConfig = {
 
 const isLoggedIn = require("../middleware/isLoggedIn")
 const isLoggedOut = require("../middleware/isLoggedOut");
+const { findById } = require('../models/Prediction.model');
 
 
-// GET /user-dashboard-All-Players
+// GET /profile-users- show All-Players from DB
 router.get('/profile/:username/players',isLoggedIn ,  async (req,res)=>{
     let userInfo = req.session.currentUser
     
@@ -62,14 +63,14 @@ router.post('/profile/:id/players/add',isLoggedIn , (req,res)=>{
 
     Player.findById(playerId)
         .then (playerData=>{
-            console.log(playerData)
+            
             User.findById(userId)
                 .populate("players")
                 .then (userInfo=>{
-                    console.log(userInfo)
+                    
                         /*this checks if player's name is already existant in the user.players Array*/
                     if (userInfo.players.find(player => player.playername === playerData.playername) ) {
-                        console.log("player already exists in your team")
+                        
                         Player.find()
                             .then(allPlayersFromDb=>{
 
@@ -79,7 +80,7 @@ router.post('/profile/:id/players/add',isLoggedIn , (req,res)=>{
                       }
                         /*this checks if player's team is already full*/
                       else if (userInfo.players.length > 15){
-                        console.log("Team capacity reached! You already have 15 players")
+                        
                         Player.find()
                             .then(allPlayersFromDb=>{
                                 res.render(`players`, {allPlayersFromDb, userInfo, errorMessage: "Your Team already has 15 players, please delete some before adding any other" })
@@ -99,23 +100,48 @@ router.post('/profile/:id/players/add',isLoggedIn , (req,res)=>{
     
 })
 
-// DELETE/Player in the dashboard
+
+router.post('/profile/:playersId/update', isLoggedIn, (req,res)=>{
+    let {playersId} = req.params;
+    const userId = req.session.currentUser._id
+
+    Player.findByIdAndDelete(playersId)
+            .then(playerData =>{
+            console.log("testttttttttttttttttttttttttttttttttttttttttttt", playerData)
+            User.findById(userId)
+            .then(userInfo=>{
+                for (i=0; i< userInfo.players.length; i++){
+                    if (userInfo.players[i].length===playersId){
+                        playersId.pop
+                    } else continue
+                } 
+                
+                res.redirect(`/profile/${userId.username}/players`)
+            }) 
+            .catch(err=>{
+                res.render('error', {errorMessage: err})
+            })
+        }) 
+
+})
+
+//DELETE/Player in the dashboard
 router.post('/profile/:playersId/delete', (req,res)=>{
-    console.log("working?")
+    
     let {playersId} = req.params;
     let userData = req.session.currentUser
-    Player.findById(playersId)
+    Player.findById(playersId)   
         .then(playersInformation=>{
-            console.log("players info" + playersInformation)
+            
             User.findById(userData._id)
         .populate("players")
         .then(userInformation=>{
-            console.log(userInformation)
+            
             for (i=0;i<userInformation.players.length;i++){
-                console.log("looping")
+                
                 if (userInformation.players[i].playername === playersInformation.playername){
                     userInformation.players.splice(i,1)
-                    console.log("new array is:  " + userInformation)
+                    
                 } else {
                     continue
                 }
@@ -131,11 +157,17 @@ router.post('/profile/:playersId/delete', (req,res)=>{
 
 
 // UPDATE/Player in the dashboard
-router.post('/profile/:id/update', (req,res)=>{
-    console.log("Hello world")
+// router.post('/profile/:id/update', (req,res)=>{
+//     let userId = req.session.currentUser._id
+//     User.findByIdAndUpdate(userId)
+    
+//     .then(userData=>{
+//         res.render("profile/profile", {userData}) 
+//     })
+//     console.log("Hello world")
 
     
-})
+// })
 
 
 router.post('/profile/:username/players/verify', async (req,res)=>{
@@ -160,10 +192,10 @@ router.post('/profile/:username/players/verify', async (req,res)=>{
         User.findById(userInfo._id)
             .populate('players')
             .then (userInfoPupulated=>{
-                console.log(userInfoPupulated)
+                
                 for (i=0;i<userInfoPupulated.players.length;i++){
                     let country = userInfoPupulated.players[i].team
-                    console.log(country)
+                    
                     let countryUppercase = country.charAt(0).toUpperCase() + country.slice(1);
                     let filteredAwayMatchesArray = matchesArray.filter(match => match.away_team_en === countryUppercase)
 
@@ -174,7 +206,7 @@ router.post('/profile/:username/players/verify', async (req,res)=>{
                     }
 
                     let filteredHomeMatchesArray = matchesArray.filter(match => match.home_team_en === countryUppercase)
-                    console.log(filteredHomeMatchesArray)
+                    
                     for (y=0;y<filteredHomeMatchesArray.length;y++){
                         if (filteredHomeMatchesArray[y].home_score > filteredHomeMatchesArray[y].away_score){
                             userInfoPupulated.fantasyPoints += 5   

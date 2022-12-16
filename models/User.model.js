@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 
+
 const userSchema = new Schema(
   {
     username: {
@@ -19,6 +20,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+
     predictions: [{ type: Schema.Types.ObjectId, ref: "Prediction"}],
     predictionsCount : {
       type: Number,
@@ -50,6 +52,11 @@ const userSchema = new Schema(
     }
   },
   {
+
+  },
+  {
+    // this second object adds extra properties: `createdAt` and `updatedAt`
+
     timestamps: true,
   }
 );
